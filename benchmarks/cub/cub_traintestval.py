@@ -49,8 +49,12 @@ def jason_crator(dataset='test'):
     print("%s -OK" % dataset)
 
 
-cwd = os.getcwd()
-data_path = join(cwd, 'images')
+# for server dataset locate in '/root/autodl-tmp/cub/CUB_200_2011'
+datasetPath = '/root/autodl-tmp/cub/CUB_200_2011'
+data_path = join(datasetPath, 'images')
+
+# for windows
+# datapath = join(os.cwd(),'images')
 savedir = './'
 dataset_list = ['train', 'val', 'test']
 folder_list = [f for f in listdir(data_path) if isdir(join(data_path, f))]
