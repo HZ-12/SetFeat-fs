@@ -12,6 +12,9 @@ from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 import random
 import os
+
+from tqdm import tqdm
+
 from dataloader.ml_dataFunctions import SetDataManager
 
 
@@ -24,7 +27,7 @@ def save_list_to_txt(name, input_list):
 
 def fun_metaLoader(args, normalization, n_eposide=400, file_name='/val.json'):
     val_file = args.data_dir + args.dataset + file_name
-    val_datamgr = SetDataManager(args, normalization, args.way,  args.shot, args.query, n_eposide)
+    val_datamgr = SetDataManager(args, normalization, args.way, args.shot, args.query, n_eposide)
     return val_datamgr.get_data_loader(val_file)
 
 
@@ -104,4 +107,37 @@ def dataextractor(batch, ys, yq, num_class, shot):
             xq = torch.cat((xq, xq_[yq == w]), dim=0)
     return torch.cat((xs, xq), dim=0)
 
- 
+
+def calculateMeanAndStd():
+    train_csv_path = "F:\\sshCode\\FewTURE\\datasets/dataloaders/ocean/split/train.csv"
+    import cv2
+    import random
+    CNum = 10000
+    # 挑选多少图片进行计算
+    img_h, img_w = 84, 84
+    imgs = np.zeros([img_w, img_h, 3, 1])
+    means, std = [], []
+    with open(train_csv_path, 'r') as f:
+        lines = f.readlines()[1:]
+        random.shuffle(lines)
+        # shuffle , 随机挑选图片
+        for i in tqdm(range(CNum)):
+            img_path = os.path.join('F:\\sshCode\\FewTURE\\datasets\\dataloaders\\ocean\\images',
+                                    lines[i].split(',')[0])
+            img = cv2.imread(img_path)
+            img = cv2.resize(img, (img_h, img_w))
+            img = img[:, :, :, np.newaxis]
+            imgs = np.concatenate((imgs, img), axis=3)
+            #  print(i) imgs = imgs.astype(np.float32)/255.
+        for i in tqdm(range(3)):
+            pixels = imgs[:, :, i, :].ravel()  # 拉成一行
+            means.append(np.mean(pixels))
+            std.append(np.std(pixels))
+            # cv2 读取的图像格式为BGR，PIL/Skimage读取到的都是RGB不用转means.reverse()
+            # BGR --> RGBstdevs.reverse()
+            print("normMean = {}".format(means))
+            print("normStd = {}".format(std))
+            print('transforms.Normalize(normMean = {}, normStd = {})'.format(means, std))
+
+
+calculateMeanAndStd()
