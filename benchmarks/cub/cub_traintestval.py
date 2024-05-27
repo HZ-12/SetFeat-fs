@@ -68,15 +68,15 @@ for i, folder_dir in enumerate(folder_list):
     folder_path = join(data_path, folder_dir)
     if i % 2 == 0:
         os.makedirs('train/' + folder_dir)
-        copy_tree('./images/' + folder_dir, './train/' + folder_dir)
+        copy_tree(join(data_path, folder_dir), './train/' + folder_dir)
 
     elif i % 4 == 1:
         os.makedirs('val/' + folder_dir)
-        copy_tree('./images/' + folder_dir, './val/' + folder_dir)
+        copy_tree(join(data_path, folder_dir), './val/' + folder_dir)
 
     elif i % 4 == 3:
         os.makedirs('test/' + folder_dir)
-        copy_tree('./images/' + folder_dir, './test/' + folder_dir)
+        copy_tree(join(data_path, folder_dir), './test/' + folder_dir)
 
 
 jason_crator(dataset='train')
