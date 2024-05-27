@@ -109,7 +109,9 @@ def dataextractor(batch, ys, yq, num_class, shot):
 
 
 def calculateMeanAndStd():
-    train_csv_path = "F:\\sshCode\\FewTURE\\datasets/dataloaders/ocean/split/train.csv"
+    # train_csv_path = "F:\\sshCode\\FewTURE\\datasets/dataloaders/ocean/split/train.csv"
+    # for server
+    train_csv_path = "benchmarks/ocean/split/train.csv"
     import cv2
     import random
     CNum = 10000
@@ -122,7 +124,9 @@ def calculateMeanAndStd():
         random.shuffle(lines)
         # shuffle , 随机挑选图片
         for i in tqdm(range(CNum)):
-            img_path = os.path.join('F:\\sshCode\\FewTURE\\datasets\\dataloaders\\ocean\\images',
+            # img_path = os.path.join('F:\\sshCode\\FewTURE\\datasets\\dataloaders\\ocean\\images',
+            #                         lines[i].split(',')[0])
+            img_path = os.path.join('benchmarks/ocean/images',
                                     lines[i].split(',')[0])
             img = cv2.imread(img_path)
             img = cv2.resize(img, (img_h, img_w))
