@@ -4,7 +4,7 @@ from torch import nn, einsum
 from torch.nn.init import trunc_normal_
 
 
-class LayerNorm(nn.Module):  # layernorm, but done in the channel dimension #1
+class LayerNorm(nn.Module):  # layerNorm, but done in the channel dimension #1
     def __init__(self, dim, eps=1e-5):
         super().__init__()
         self.eps = eps

@@ -50,7 +50,7 @@ def jason_crator(dataset='test'):
 
 
 cwd = os.getcwd()
-data_path = join(cwd, 'CUB_200_2011/images')
+data_path = join(cwd, 'images')
 savedir = './'
 dataset_list = ['train', 'val', 'test']
 folder_list = [f for f in listdir(data_path) if isdir(join(data_path, f))]
@@ -64,15 +64,15 @@ for i, folder_dir in enumerate(folder_list):
     folder_path = join(data_path, folder_dir)
     if i % 2 == 0:
         os.makedirs('train/' + folder_dir)
-        copy_tree('./CUB_200_2011/images/' + folder_dir, './train/' + folder_dir)
+        copy_tree('./images/' + folder_dir, './train/' + folder_dir)
 
     elif i % 4 == 1:
         os.makedirs('val/' + folder_dir)
-        copy_tree('./CUB_200_2011/images/' + folder_dir, './val/' + folder_dir)
+        copy_tree('./images/' + folder_dir, './val/' + folder_dir)
 
     elif i % 4 == 3:
         os.makedirs('test/' + folder_dir)
-        copy_tree('./CUB_200_2011/images/' + folder_dir, './test/' + folder_dir)
+        copy_tree('./images/' + folder_dir, './test/' + folder_dir)
 
 
 jason_crator(dataset='train')
