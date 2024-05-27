@@ -1,3 +1,5 @@
+import threading
+
 from einops import rearrange, repeat
 from torch import nn
 import numpy as np
@@ -108,40 +110,85 @@ def dataextractor(batch, ys, yq, num_class, shot):
     return torch.cat((xs, xq), dim=0)
 
 
-def calculateMeanAndStd():
-    # train_csv_path = "F:\\sshCode\\FewTURE\\datasets/dataloaders/ocean/split/train.csv"
-    # for server
-    train_csv_path = "benchmarks/ocean/split/train.csv"
-    import cv2
-    import random
-    CNum = 10000
+g_means = []
+g_std = []
+
+
+def calculateMeanAndStd(scope):
     # 挑选多少图片进行计算
     img_h, img_w = 84, 84
     imgs = np.zeros([img_w, img_h, 3, 1])
     means, std = [], []
-    with open(train_csv_path, 'r') as f:
-        lines = f.readlines()[1:]
-        random.shuffle(lines)
-        # shuffle , 随机挑选图片
-        for i in tqdm(range(CNum)):
-            # img_path = os.path.join('F:\\sshCode\\FewTURE\\datasets\\dataloaders\\ocean\\images',
-            #                         lines[i].split(',')[0])
-            img_path = os.path.join('benchmarks/ocean/images',
-                                    lines[i].split(',')[0])
-            img = cv2.imread(img_path)
-            img = cv2.resize(img, (img_h, img_w))
-            img = img[:, :, :, np.newaxis]
-            imgs = np.concatenate((imgs, img), axis=3)
-            #  print(i) imgs = imgs.astype(np.float32)/255.
-        for i in tqdm(range(3)):
-            pixels = imgs[:, :, i, :].ravel()  # 拉成一行
-            means.append(np.mean(pixels))
-            std.append(np.std(pixels))
-            # cv2 读取的图像格式为BGR，PIL/Skimage读取到的都是RGB不用转means.reverse()
-            # BGR --> RGBstdevs.reverse()
-            print("normMean = {}".format(means))
-            print("normStd = {}".format(std))
-            print('transforms.Normalize(normMean = {}, normStd = {})'.format(means, std))
+    # shuffle , 随机挑选图片
+    for i in tqdm(scope):
+        # img_path = os.path.join('F:\\sshCode\\FewTURE\\datasets\\dataloaders\\ocean\\images',
+        #                         lines[i].split(',')[0])
+        img_path = os.path.join('benchmarks/ocean/images',
+                                lines[i].split(',')[0].replace("\\", "/"))
+        img = cv2.imread(img_path)
+        img = cv2.resize(img, (img_h, img_w))
+        img = img[:, :, :, np.newaxis]
+        imgs = np.concatenate((imgs, img), axis=3)
+        #  print(i) imgs = imgs.astype(np.float32)/255.
+    for i in tqdm(range(3)):
+        pixels = imgs[:, :, i, :].ravel()  # 拉成一行
+        means.append(np.mean(pixels))
+        std.append(np.std(pixels))
+        # cv2 读取的图像格式为BGR，PIL/Skimage读取到的都是RGB不用转means.reverse()
+        # BGR --> RGBstdevs.reverse()
+    print("normMean = {}".format(means))
+    print("normStd = {}".format(std))
+    print('transforms.Normalize(normMean = {}, normStd = {})'.format(means, std))
+    g_means.append(means)
+    g_std.append(std)
 
 
-calculateMeanAndStd()
+# train_csv_path = "F:\\sshCode\\FewTURE\\datasets/dataloaders/ocean/split/train.csv"
+# for server
+train_csv_path = "benchmarks/ocean/split/train.csv"
+import cv2
+import random
+
+
+CNum = 10000
+with open(train_csv_path, 'r') as f:
+    lines = f.readlines()[1:]
+    random.shuffle(lines)
+    thread1 = threading.Thread(target=calculateMeanAndStd, args=(range(1000)))
+    thread2 = threading.Thread(target=calculateMeanAndStd, args=(range(1000, 2000)))
+    thread3 = threading.Thread(target=calculateMeanAndStd, args=(range(2000, 3000)))
+    thread4 = threading.Thread(target=calculateMeanAndStd, args=(range(3000, 4000)))
+    thread5 = threading.Thread(target=calculateMeanAndStd, args=(range(4000, 5000)))
+    thread6 = threading.Thread(target=calculateMeanAndStd, args=(range(5000, 6000)))
+    thread7 = threading.Thread(target=calculateMeanAndStd, args=(range(6000, 7000)))
+    thread8 = threading.Thread(target=calculateMeanAndStd, args=(range(7000, 8000)))
+    thread9 = threading.Thread(target=calculateMeanAndStd, args=(range(8000, 9000)))
+    thread10 = threading.Thread(target=calculateMeanAndStd, args=(range(9000, 10000)))
+
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+    thread5.start()
+    thread6.start()
+    thread7.start()
+    thread8.start()
+    thread9.start()
+    thread10.start()
+
+    thread1.join()
+    thread2.join()
+    thread3.join()
+    thread4.join()
+    thread5.join()
+    thread6.join()
+    thread7.join()
+    thread8.join()
+    thread9.join()
+    thread10.join()
+
+    print("normMean = {}".format(np.mean(g_means)))
+    print("normStd = {}".format(np.mean(g_std)))
+    print('transforms.Normalize(normMean = {}, normStd = {})'.format(np.mean(g_means), np.mean(g_std)))
+
+
